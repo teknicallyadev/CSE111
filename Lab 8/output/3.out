@@ -1,0 +1,4 @@
+CREATE INDEX lineitem_idx_f0d795de ON lineitem(l_returnflag, l_receiptdate);
+
+SEARCH TABLE lineitem USING INDEX lineitem_idx_f0d795de (l_returnflag=? AND l_receiptdate=?)
+

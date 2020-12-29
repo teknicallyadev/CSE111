@@ -1,0 +1,11 @@
+stages:
+  - Testing
+
+unit_tests:
+  stage: Testing
+  image: adatta2/cse111-docker
+  artifacts:
+    paths:
+      - score.res
+  script:
+    - make run

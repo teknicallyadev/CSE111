@@ -1,0 +1,27 @@
+SELECT SUM(p_size*2)
+FROM lineitem, part, orders, customer
+WHERE l_suppkey = 1
+AND l_partkey = p_partkey
+AND c_custkey = o_custkey
+AND o_orderkey = l_orderkey
+GROUP BY c_nationkey
+
+SELECT n_name, c_nationkey, l_suppkey, COUNT(o_orderkey)
+FROM nation, lineitem, customer, orders
+WHERE o_orderkey = l_orderkey
+AND l_suppkey = 4
+AND c_custkey = o_custkey
+AND n_nationkey = c_nationkey
+GROUP BY c_nationkey
+ORDER BY COUNT(o_orderkey) DESC
+LIMIT 2
+
+SELECT r_name, CAST(total(w_capacity) AS INT)
+FROM region, nation
+LEFT JOIN (SELECT *
+FROM warehouse, supplier, nation
+WHERE n_name = ? 
+AND s_suppkey = w_suppkey
+AND n_nationkey = s_nationkey) ON nation.n_nationkey = w_nationkey
+WHERE r_regionkey = nation.n_regionkey
+GROUP BY r_name

@@ -1,0 +1,5 @@
+CREATE INDEX customer_idx_998d96e0 ON customer(c_mktsegment DESC);
+
+SCAN TABLE customer USING INDEX customer_idx_998d96e0
+USE TEMP B-TREE FOR ORDER BY
+

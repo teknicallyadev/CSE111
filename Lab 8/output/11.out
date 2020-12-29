@@ -1,0 +1,6 @@
+CREATE INDEX lineitem_idx_97c0efd0 ON lineitem(l_orderkey, l_discount);
+CREATE INDEX orders_idx_3b7bd40e ON orders(o_custkey);
+
+SCAN TABLE orders USING INDEX orders_idx_3b7bd40e
+SEARCH TABLE lineitem USING COVERING INDEX lineitem_idx_97c0efd0 (l_orderkey=? AND l_discount>?)
+

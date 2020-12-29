@@ -1,0 +1,8 @@
+CREATE INDEX customer_idx_63d516d2 ON customer(c_nationkey, c_custkey);
+CREATE INDEX nation_idx_a15a7a61 ON nation(n_name, n_nationkey);
+CREATE INDEX orders_idx_2f03148e ON orders(o_orderpriority, o_custkey);
+
+SEARCH TABLE orders USING INDEX orders_idx_2f03148e (o_orderpriority=?)
+SEARCH TABLE nation USING COVERING INDEX nation_idx_a15a7a61 (n_name=?)
+SEARCH TABLE customer USING COVERING INDEX customer_idx_63d516d2 (c_nationkey=? AND c_custkey=?)
+

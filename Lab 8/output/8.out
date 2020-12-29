@@ -1,0 +1,8 @@
+CREATE INDEX supplier_idx_aeb31094 ON supplier(s_nationkey, s_acctbal);
+CREATE INDEX nation_idx_70de5dc5 ON nation(n_regionkey, n_nationkey);
+CREATE INDEX region_idx_19efe394 ON region(r_name, r_regionkey);
+
+SEARCH TABLE region USING COVERING INDEX region_idx_19efe394 (r_name=?)
+SEARCH TABLE nation USING COVERING INDEX nation_idx_70de5dc5 (n_regionkey=?)
+SEARCH TABLE supplier USING INDEX supplier_idx_aeb31094 (s_nationkey=? AND s_acctbal<?)
+

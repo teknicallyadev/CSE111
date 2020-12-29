@@ -1,0 +1,8 @@
+CREATE INDEX nation_idx_70de5dc5 ON nation(n_regionkey, n_nationkey);
+CREATE INDEX region_idx_19efe394 ON region(r_name, r_regionkey);
+CREATE INDEX customer_idx_83a22bf1 ON customer(c_mktsegment);
+
+SEARCH TABLE customer USING INDEX customer_idx_83a22bf1 (c_mktsegment=?)
+SEARCH TABLE region USING COVERING INDEX region_idx_19efe394 (r_name=?)
+SEARCH TABLE nation USING COVERING INDEX nation_idx_70de5dc5 (n_regionkey=? AND n_nationkey=?)
+

@@ -1,0 +1,6 @@
+CREATE INDEX supplier_idx_2802d374 ON supplier(s_nationkey);
+CREATE INDEX nation_idx_006dfb86 ON nation(n_name);
+
+SCAN TABLE nation USING INDEX nation_idx_006dfb86
+SEARCH TABLE supplier USING INDEX supplier_idx_2802d374 (s_nationkey=?)
+

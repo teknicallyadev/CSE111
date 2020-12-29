@@ -1,0 +1,12 @@
+CREATE INDEX region_idx_1f5a188b ON region(r_regionkey, r_name DESC);
+CREATE INDEX nation_idx_18de499f ON nation(n_nationkey);
+CREATE INDEX customer_idx_1cb1bd02 ON customer(c_custkey);
+CREATE INDEX orders_idx_cec31706 ON orders(o_orderstatus);
+
+SEARCH TABLE orders USING INDEX orders_idx_cec31706 (o_orderstatus=?)
+SEARCH TABLE customer USING INDEX customer_idx_1cb1bd02 (c_custkey=?)
+SEARCH TABLE nation USING INDEX nation_idx_18de499f (n_nationkey=?)
+SEARCH TABLE region USING COVERING INDEX region_idx_1f5a188b (r_regionkey=?)
+USE TEMP B-TREE FOR GROUP BY
+USE TEMP B-TREE FOR ORDER BY
+

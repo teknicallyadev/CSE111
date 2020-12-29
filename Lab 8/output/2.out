@@ -1,0 +1,4 @@
+CREATE INDEX supplier_idx_2347ad1b ON supplier(s_acctbal DESC);
+
+SEARCH TABLE supplier USING COVERING INDEX supplier_idx_2347ad1b
+

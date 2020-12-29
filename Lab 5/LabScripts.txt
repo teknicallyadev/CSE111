@@ -1,0 +1,168 @@
+--Question 1
+SELECT COUNT(*)
+FROM customer, region, nation 
+WHERE r_name IS NOT 'EUROPE' 
+AND r_name IS NOT 'AFRICA'
+AND n_regionkey = r_regionkey 
+AND c_nationkey = n_nationkey;
+
+--Question 2
+SELECT r_name, COUNT(*) 
+FROM region, nation, supplier,
+(SELECT r_name AS r_name2, AVG(s_acctbal) AS s_acctbal2
+FROM region, nation, supplier
+WHERE s_nationkey = n_nationkey 
+AND r_regionkey = n_regionkey
+GROUP BY n_regionkey)
+WHERE r_name = r_name2
+AND s_acctbal > s_acctbal2
+AND s_nationkey = n_nationkey 
+AND r_regionkey = n_regionkey
+GROUP BY n_regionkey;
+
+--Question 3
+SELECT MAX(l_discount)
+FROM orders, lineitem,
+(SELECT AVG(l_discount) AS l_discount2
+FROM lineitem)
+WHERE l_orderkey = o_orderkey
+AND o_orderdate LIKE "1995-%%-%%"
+AND l_discount < l_discount2;
+
+--Question 4
+SELECT n_name, c_custCount, s_suppCount 
+FROM nation,
+(SELECT COUNT(c_custkey) AS c_custCount, n_nationkey AS n_nationkey2
+FROM customer, nation
+WHERE n_regionkey = 3
+AND c_nationkey = n_nationkey
+GROUP BY n_nationkey),
+(SELECT COUNT(s_suppkey) AS s_suppCount, n_nationkey AS n_nationkey3
+FROM supplier, nation
+WHERE n_regionkey = 3
+AND s_nationkey = n_nationkey
+GROUP BY n_nationkey)
+WHERE n_nationkey = n_nationkey2
+AND n_nationkey2 = n_nationkey3;
+
+--Question 5
+SELECT s_name, p_size, MIN(ps_supplycost)
+FROM part, supplier, partsupp, nation, region
+WHERE p_type LIKE '%STEEL%'
+AND n_regionkey = 1
+AND n_nationkey = s_nationkey
+AND ps_suppkey = s_suppkey
+AND p_partkey = ps_partkey
+GROUP BY p_size;
+
+--Question 6
+SELECT p_mfgr
+FROM supplier, (SELECT p_mfgr, MIN(ps_availqty) 
+FROM part, partsupp)
+WHERE s_name = 'Supplier#000000053' 
+AND p_partkey = ps_partkey 
+AND ps_suppkey = s_suppkey;
+
+--Question 7
+SELECT o_orderpriority, COUNT(*)
+FROM orders, lineitem
+WHERE o_orderdate LIKE '1996-%-%'
+AND l_orderkey = o_orderkey
+AND l_receiptdate > l_commitdate
+GROUP BY o_orderpriority
+ORDER BY o_orderpriority DESC
+
+--Question 8
+SELECT COUNT(DISTINCT s_name)
+FROM part, partsupp, supplier 
+WHERE p_type LIKE '%MEDIUM POLISHED%' 
+AND p_size IN (3, 23, 36, 49)
+AND s_suppkey = ps_suppkey
+AND ps_partkey = p_partkey;
+
+--Question 9 
+SELECT COUNT(*)
+FROM supplier, nation, 
+(SELECT ps_supplycost * ps_availqty, ps_suppkey
+FROM partsupp 
+ORDER BY ps_supplycost * ps_availqty DESC
+LIMIT ((SELECT COUNT(*) FROM partsupp) * 0.03))
+WHERE n_name = 'CANADA'
+AND s_nationkey = 3
+AND ps_suppkey = s_suppkey;
+
+--Question 10 
+SELECT r_name, COUNT(c_name)
+FROM customer, nation, orders, region
+WHERE c_nationkey = n_nationkey
+AND n_regionkey = r_regionkey
+AND c_custkey NOT IN 
+(SELECT DISTINCT o_custkey FROM orders)
+AND c_acctbal > (SELECT AVG(c_acctbal) FROM customer)
+GROUP BY r_name;
+
+--Question 11 
+SELECT p1 FROM (
+SELECT p_name AS p1, MAX(l_extendedprice * (1-l_discount))
+FROM lineitem, part
+WHERE l_shipdate > '1994-10-02'
+AND l_partkey = p_partkey);
+
+--Question 12
+SELECT ROUND(SUM(ps_supplycost), 2)
+FROM partsupp
+INNER JOIN 
+(SELECT p_partkey, l_suppkey FROM lineitem INNER JOIN (SELECT p_partkey FROM part WHERE p_retailprice < 1000) ON p_partkey = l_partkey WHERE l_shipdate LIKE '1996_%-%'
+AND l_suppkey NOT IN  --ITEM NOT SUPPLIED BY SUPPLIER
+(SELECT s_suppkey FROM supplier
+INNER JOIN (SELECT l_suppkey FROM lineitem WHERE l_shipdate LIKE '1995_%-%' AND l_extendedprice < 2000)  
+ON l_suppkey = s_suppkey)) 
+ON ps_partkey = p_partkey AND l_suppkey = ps_suppkey 
+
+--Question 13
+SELECT o_orderpriority, COUNT(DISTINCT l_orderkey)
+FROM orders 
+INNER JOIN 
+(SELECT l_orderkey FROM lineitem WHERE l_receiptdate > l_commitdate)
+ON l_orderkey = o_orderkey
+WHERE o_orderdate LIKE '1996-10-%' 
+OR o_orderdate LIKE '1996-11-%'
+OR o_orderdate LIKE '1996-12-%'
+GROUP BY o_orderpriority; 
+
+--Question 14
+SELECT r1.r_name, r2.r_name, SUBSTR(l_shipdate,1,4), SUM(l_extendedprice*(1-l_discount))
+FROM customer, lineitem, orders, nation n1, nation n2, region r1, region r2, supplier
+WHERE n1.n_nationkey = s_nationkey 
+AND r1.r_regionkey = n1.n_regionkey 
+AND n2.n_nationkey = c_nationkey
+AND r2.r_regionkey = n2.n_regionkey
+AND l_orderkey = o_orderkey
+AND o_custkey = c_custkey
+AND l_suppkey = s_suppkey 
+AND SUBSTR(l_shipdate,1,4) IN ('1995','1996') 
+GROUP BY r1.r_name, r2.r_name, substr(l_shipdate,1,4);
+
+
+--Question 15
+SELECT SUM2/SUM1 
+FROM (SELECT SUM(l_extendedprice*(1-l_discount)) AS SUM1 
+FROM lineitem, orders, customer, nation, region  
+WHERE l_orderkey = o_orderkey 
+AND o_custkey = c_custkey 
+AND c_nationkey = n_nationkey
+AND n_regionkey = r_regionkey 
+AND r_name = 'EUROPE' 
+AND l_shipdate LIKE '1996-%-%')
+,
+(SELECT SUM(l_extendedprice*(1-l_discount)) AS SUM2
+FROM lineitem, orders, customer, region, supplier, nation n1, nation n2
+WHERE l_orderkey = o_orderkey 
+AND o_custkey = c_custkey 
+AND c_nationkey = n1.n_nationkey 
+AND n1.n_regionkey = r_regionkey 
+AND r_name = 'EUROPE' 
+AND l_suppkey = s_suppkey 
+AND s_nationkey = n2.n_nationkey 
+AND n2.n_name = 'UNITED STATES' 
+AND l_shipdate LIKE '1996-%-%');

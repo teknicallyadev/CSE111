@@ -1,0 +1,13 @@
+CREATE INDEX region_idx_632c978e ON region(r_regionkey);
+CREATE INDEX nation_idx_18de499f ON nation(n_nationkey);
+CREATE INDEX supplier_idx_464097db ON supplier(s_suppkey);
+CREATE INDEX lineitem_idx_d55847c0 ON lineitem(l_orderkey);
+CREATE INDEX orders_idx_aa60401b ON orders(o_orderpriority, o_orderkey);
+
+SEARCH TABLE orders USING INDEX orders_idx_aa60401b (o_orderpriority=?)
+SEARCH TABLE lineitem USING INDEX lineitem_idx_d55847c0 (l_orderkey=?)
+SEARCH TABLE supplier USING INDEX supplier_idx_464097db (s_suppkey=?)
+SEARCH TABLE nation USING INDEX nation_idx_18de499f (n_nationkey=?)
+SEARCH TABLE region USING INDEX region_idx_632c978e (r_regionkey=?)
+USE TEMP B-TREE FOR GROUP BY
+
